@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+env/
+venv/
+.env
+
+# Datasets & Weights (Very Important)
+Dataset/
+*.pth
+*.onnx
+
+# IDEs
+.vscode/
+.idea/
