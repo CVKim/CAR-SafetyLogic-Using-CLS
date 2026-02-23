@@ -1,33 +1,32 @@
-This is a professional **README.md** tailored for your project. It explains the architecture, environment setup, and how to use the scripts you've developed for your RTX 3080 environment.
 
 ---
 
-# Vehicle Safety Monitoring System (Vision AI)
+# CAR-SafetyLogic-Using-CLS
 
-This project implements a deep learning-based safety logic to detect vehicle movement anomalies. It utilizes a **CNN-LSTM** architecture to classify whether a vehicle is moving normally or has stopped (Emergency) by analyzing a sequence of image frames.
+This project implements a deep learning-based safety logic to detect vehicle movement anomalies in industrial production lines. It utilizes a **CNN-LSTM** architecture to classify whether a vehicle is moving normally or has stopped (Emergency) by analyzing a sequence of image frames.
 
 ## 1. Project Overview
 
-In a production line, vehicles must move a certain distance within a specific timeframe. If a vehicle remains stationary across frames, the system triggers an emergency signal.
+In a production line, vehicles must move a certain distance within a specific timeframe. If a vehicle remains stationary across  frames, the system triggers an emergency signal.
 
-- **Backbone:** EfficientNet-B0 (Feature Extraction)
-- **Temporal Model:** LSTM (Sequence Analysis)
-- **Input:** Sequential image frames ()
+* **Backbone:** EfficientNet-B0 (Spatial Feature Extraction)
+* **Temporal Model:** LSTM (Temporal Sequence Analysis)
+* **Target Hardware:** NVIDIA RTX 3080 (Dual GPU optimized)
 
 ## 2. Directory Structure
 
 ```text
-CarSafetyProject/
+CAR-SafetyLogic-Using-CLS/
 ├── Dataset/
-│   ├── normal/        # Subfolders with normal movement sequences
-│   │   ├── seq1/      # img1.jpg, img2.jpg...
-│   │   └── seq2/
-│   └── emergency/     # Subfolders with stopped/abnormal sequences
-│       ├── seq1/
-│       └── seq2/
-├── model.py           # Model Architecture (EfficientNet + LSTM)
-├── train.py           # Training Script
-└── inference.py       # Real-time/Offline Inference Script
+│   ├── normal/        # Folders containing moving vehicle frame sequences
+│   │   ├── seq_01/    # frame_001.jpg, frame_002.jpg ...
+│   │   └── ...
+│   └── emergency/     # Folders containing stationary vehicle frame sequences
+│       ├── seq_01/    # frame_001.jpg, frame_002.jpg ...
+│       └── ...
+├── model.py           # EfficientNet-B0 + LSTM Architecture
+├── train.py           # Dataset loader and Training pipeline
+└── inference.py       # Sequence-based inference on frame directories
 
 ```
 
@@ -35,9 +34,9 @@ CarSafetyProject/
 
 ### Prerequisites
 
-- Windows 10/11
-- NVIDIA RTX 3080 (Dual GPU supported)
-- Anaconda or Miniconda
+* Windows 10/11
+* NVIDIA RTX 3080 (CUDA 12.x confirmed)
+* Anaconda or Miniconda
 
 ### Installation
 
@@ -46,7 +45,7 @@ CarSafetyProject/
 conda create -n car_safety python=3.9 -y
 conda activate car_safety
 
-# Install PyTorch for CUDA 12.x (Optimized for RTX 30x0)
+# Install PyTorch for CUDA 12.x (Optimized for RTX 30-series)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 # Install dependencies
@@ -64,33 +63,38 @@ Defines the `CarSafetyModel` class. It extracts spatial features from each frame
 
 Handles data loading and model training.
 
-- **FrameSequenceDataset:** A custom PyTorch Dataset that groups images from subfolders into sequences.
-- **Sliding Window:** It creates training samples by sliding across the frame list.
-- **Optimization:** Uses Adam optimizer and CrossEntropyLoss.
+* **FrameSequenceDataset:** Groups individual image frames into a sequence of length .
+* **Sliding Window:** Creates training samples by sliding across the frame list to maximize data efficiency.
+* **Optimization:** Uses Adam optimizer and CrossEntropyLoss for binary classification.
 
 ### `inference.py`
 
-Performs status prediction on a target folder of images.
+Performs status prediction on a target directory.
 
-- It maintains a buffer of frames and performs a "sliding window" inference.
-- Outputs either **NORMAL** or **EMERGENCY** based on the temporal change between frames.
+* Maintains a temporal buffer of 10 frames.
+* Performs "sliding window" inference to provide near real-time monitoring.
+* Outputs **NORMAL** or **EMERGENCY** based on the predicted state.
 
 ## 5. Usage
 
 ### Training
 
-Place your labeled data in the `Dataset/` folder and run:
+Place your labeled sequence data in the `Dataset/` folder and run:
 
 ```bash
 python train.py
 
 ```
 
+This will save the best model weights as `car_safety_model.pth`.
+
 ### Inference
 
-Point the script to your test frame directory in `inference.py` and run:
+Point the `test_folder` path in `inference.py` to your target frame directory and run:
 
 ```bash
 python inference.py
 
 ```
+
+---
